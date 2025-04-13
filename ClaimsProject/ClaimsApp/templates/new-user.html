@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block main_block %}
+<div class="justify-between justify-items-center h-full w-full bg-amber-200 p-30 m-30">
+    {% if messages %}
+        <ul class="bg-green-500">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post" class="p-30 m-30">
+        {% csrf_token %}
+        {{ user_form|crispy }}
+        <button type="submit" 
+        class="justify-between justify-items-stretch w-full p-3 m-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+            ADD USER
+        </button>
+    </form>
+</div>
+{% endblock main_block %}

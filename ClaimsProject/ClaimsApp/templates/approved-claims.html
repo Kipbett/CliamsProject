@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block main_block %}
+{% if approved %}
+<table class="p-3 m-4 table-auto">
+    <thead>
+        <tr class="mt-3 ml-3 border-2 border-amber-300 rounded-2xl">
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claim ID</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Lecturer</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claim Date</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Total Hours</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Total Amount</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Action</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for claim in approved %}
+        <tr class="mt-3 ml-3 border-2 border-amber-300 rounded-2xl">
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.id }}</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.lecturer.first_name }}</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.date_taught }}</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.time_taught }}</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.claim_sub_total }}</td>
+            <td class="mt-5 ml-5 p-3 border-2 border-amber-300">
+                {% if claim.id %}
+                <form method="POST" action="{% url 'new_payment' claim.id %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        PAY CLAIM
+                    </button>
+                </form>
+                {% else %}
+                <p>Invalid Cliam ID</p>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<h3>No Approved Claims</h3>
+<button>
+    <a href="{% url "dashboard" %}">Back</a>
+<button>
+{% endif %}
+{% endblock main_block %}

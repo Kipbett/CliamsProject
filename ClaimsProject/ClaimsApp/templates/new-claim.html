@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block main_block %}
+<p>Create a new claim</p>
+        <form method= 'POST'>
+            {% csrf_token %}
+            {{ claims_form|crispy }}
+            <button type="submit">Add Claim</button>
+        </form>
+{% endblock main_block %}

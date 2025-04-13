@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% comment %} {% load static %} {% endcomment %}
+
+{% block main_block %}
+
+    {% if messages %}
+        <ul class='messages'>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+        <p class="text-2xl text-amber-400">Claims List</p>
+
+        {% if claims %}
+        <table class="p-3 m-4 table-auto">
+            <thead>
+                <tr class="mt-3 ml-3 border-2 border-amber-300 rounded-2xl">
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims ID</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Lec</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Course</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Date</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Start</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims end</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Duraton</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims Status</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for claim, time in claims %}
+                <tr class="mt-5 ml-3">
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.id }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.lecturer.first_name }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.course }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.date_taught }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.start_time }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.end_time }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ time }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.status }}</td>
+                    <td class="mt-5 ml-5 p-3 border-2 border-amber-300">
+                       {% if user_role != 'lecturer' %}
+                            <form method="POST" action="{% url 'claim_update' claim.id %}">
+                                {% csrf_token %}
+                                <input type="Submit" value='APPROVE CLAIM'>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{% url "end_claim" claim.id %}">
+                                {% csrf_token %}
+                                <input type="submit" value="END SESSION"/>
+                            </form>
+                       {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Nod Data Found </p>
+        {% endif %}
+{% endblock main_block %}

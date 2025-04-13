@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block main_block %}
+<div class="px-10 mx-10 grid grid-cols-2 gap-4">
+    {% if stats %}
+    <div class="flex flex-col m-3 p-3 border-2 border-amber-400 rounded-2xl justify-center justify-items-center hover:bg-amber-600 hover:text-white">
+        <div class="justify-center justify-items-center w-full">
+            <h1 class="font-medium text-2xl text-amber-400">Pending Claims</h1>
+        </div>
+        <div class="justify-center justify-items-center w-full">
+            <p class="font-bold text-3xl">{{ stats.pending_claims }}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col m-3 p-3 border-2 border-amber-400 rounded-2xl justify-center justify-items-center">
+        <div class="justify-center justify-items-center w-full">
+            <h1 class="font-medium text-2xl text-amber-400">Approved Claims</h1>
+        </div>
+        <div class="justify-center justify-items-center w-full">
+            <p class="font-bold text-3xl">{{ stats.approved_claims }}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col m-3 p-3 border-2 border-amber-400 rounded-2xl justify-center justify-items-center">
+        <div class="justify-center justify-items-center w-full">
+            <h1 class="font-medium text-2xl text-amber-400">Total Hours</h1>
+        </div>
+        <div class="justify-center justify-items-center w-full">
+            <p class="font-bold text-3xl">{{ stats.total_hours }}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col m-3 p-3 border-2 border-amber-400 rounded-2xl justify-center justify-items-center">
+        <div class="justify-center justify-items-center w-full">
+            <h1 class="font-medium text-2xl text-amber-400">Balance</h1>
+        </div>
+        <div class="justify-center justify-items-center w-full">
+            <p class="font-bold text-3xl">{{ stats.balance }}</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="mt-3 p-2 justify-between justify-items-stretch">
+    <div class="flex flex-row justify-evenly justify-items-stretch p-3 mr-2">
+        
+        {% if stats %}
+            {% if stats.user_role == 'lecturer' %}
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">End Claim</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "add_claim" %}">Add Claim</a>
+            </button>
+            {% endif %}
+            {% if stats.user_role == 'accountant' %}
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "approved_claims" %}">Pay Claims</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">Approve Claims</a>
+            </button>
+            {% endif %}
+            {% if stats.user_role == 'faculty_dean' or stats.user_role == 'student_rep' %}
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">Approve Claims</a>
+            </button>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock main_block %}
