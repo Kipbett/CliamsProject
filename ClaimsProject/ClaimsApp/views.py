@@ -53,14 +53,19 @@ def add_claim(request):
 def list_claim(request):
     
     title = "Claims List"
-    claims = Claims.objects.all()
+    pending_claims = Claims.objects.filter(status='pending')
+    approved_claims = Claims.objects.filter(status='approved')
     user = request.user
     user_id = request.user.id
     user_role = request.user.role
-    duration = []
+    pending_duration = []
+    approved_duration = []
     roles = []
-    for claim in claims:
-        duration.append(int(claim.time_taught))
+    for claim in pending_claims:
+        pending_duration.append(int(claim.time_taught))
+
+    for app_claim in approved_claims:
+        approved_duration.append(int(app_claim.time_taught))
 
     for role in roles:
         roles.append(user_role)
@@ -98,14 +103,15 @@ def list_claim(request):
             
             update.save()
             return redirect('claims_list')
-    claims_data = zip(claims, duration)
+    pending_claims_data = zip(pending_claims, pending_duration)
+    approved_claims_data = zip(approved_claims, approved_duration)
     context = {
-        'claims': claims_data,
+        'pending_claims': pending_claims_data,
+        'approved_claims': approved_claims_data,
         'title': title,
         'user': user,
         'user_id': user_id,
         'user_role': user_role,
-        'claims_approve': ClaimsApprovalForm()
     }
     return render(request, 'claims-list.html', context)
 

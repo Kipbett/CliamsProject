@@ -14,7 +14,7 @@
         </ul>
     {% endif %}
         <p class="text-2xl text-amber-400">Claims List</p>
-        {% if claims %}
+        {% if pending_claims %}
         <h1 class="text-2xl text-amber-400">PENDING CLAIMES</h1>
         <table class="p-3 m-4 table-auto">
             <thead>
@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for claim, time in claims %}
+                {% for claim, time in pending_claims %}
                     {% if claim.lecturer.id is user_id and claim.lecturer.role == 'lecturer' and claim.status == 'pending' %}
                     <tr class="mt-5 ml-3">
                         <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.id }}</td>
@@ -85,7 +85,13 @@
             </tbody>
         </table>
 
+        {% else %}
+        <p>Nod Pending Claims Found </p>
+        {% endif %}
+
         <h1 class="text-2xl text-amber-400">APPROVED CLAIMES</h1>
+
+        {% if approved_claims %}
         <table class="p-3 m-4 table-auto">
             <thead>
                 <tr class="mt-3 ml-3 border-2 border-amber-300 rounded-2xl bg-gray-400">
@@ -101,35 +107,35 @@
                 </tr>
             </thead>
             <tbody>
-                {% for app_claim, app_time in claims %}
-                    {% if app_claim.lecturer.id is user_id and app_claim.lecturer.role == 'lecturer' and app_claim.status == 'approved' %}
+                {% for claim, time in approved_claims %}
+                    {% if claim.lecturer.id is user_id and user_role.role == 'lecturer' and claim.status == 'approved' %}
                     <tr class="mt-5 ml-3">
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.id }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.lecturer.first_name }} {{ app_claim.lecturer.last_name }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.course }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.date_taught }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.start_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.end_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.status }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.id }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.lecturer.first_name }} {{ lecturer.last_name }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.course }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.date_taught }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.start_time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.end_time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.status }}</td>
                     </tr>
                     {% elif user_role != 'lecturer' %}
                     <tr class="mt-5 ml-3">
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.id }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.lecturer.first_name }} {{ app_claim.lecturer.last_name }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.course }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.date_taught }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.start_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.end_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_time }}</td>
-                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ app_claim.status }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.id }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.lecturer.first_name }} {{ claim.lecturer.last_name }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.course }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.date_taught }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.start_time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.end_time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ time }}</td>
+                        <td class="mt-5 ml-5 p-3 border-2 border-amber-300">{{ claim.status }}</td>
                     </tr>
                     {% endif %}
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p>Nod Data Found </p>
+        <h1>No Approved Claims Found</h1>
         {% endif %}
         <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
             <a href="{% url "dashboard" %}">BACK</a>
