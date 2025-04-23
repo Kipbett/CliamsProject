@@ -25,8 +25,7 @@ class ClaimsForm(forms.ModelForm):
         model = Claims
         fields = (
             'lecturer',
-            'course',
-            'status'
+            'course'
         )
 
 class ClaimsPaymentForm(forms.ModelForm):

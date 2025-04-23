@@ -51,6 +51,9 @@
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
                 <a href="{% url "add_claim" %}">Add Claim</a>
             </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">View Claims</a>
+            </button>
             {% endif %}
             {% if stats.user_role == 'accountant' %}
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">

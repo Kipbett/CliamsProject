@@ -35,9 +35,15 @@ def add_claim(request):
     if request.method == 'POST':
         claims_form = ClaimsForm(request.POST)
         if claims_form.is_valid():
-            claims_form.save()
-            return redirect('claims_list')
-        
+            claims_form.save(commit=fasle)
+            # return redirect('claims_list')
+        claims = Claims.objects.last()
+        claims_id = claims.id
+        new_claim = ClaimsApproval(claim_id=claims_id)
+        new_claim.save()
+        messages.success(request, "Claim Approval Added")
+        return redirect('claims_list')
+
     else:
         claims_form = ClaimsForm()
 
@@ -49,6 +55,7 @@ def list_claim(request):
     title = "Claims List"
     claims = Claims.objects.all()
     user = request.user
+    user_id = request.user.id
     user_role = request.user.role
     duration = []
     roles = []
@@ -96,6 +103,7 @@ def list_claim(request):
         'claims': claims_data,
         'title': title,
         'user': user,
+        'user_id': user_id,
         'user_role': user_role,
         'claims_approve': ClaimsApprovalForm()
     }
@@ -134,6 +142,12 @@ def claims_payment(request, id):
         claims.status = 'paid'
         claims.save()
         messages.success(request, "Claim Successfully Paid")
+        claim_payment = ClaimsPayment(
+            amount_paid= claims.claim_sub_total,
+            lecturer_id= claims.lecturer.id
+        )
+
+        claim_payment.save()
         return redirect('approved_claims')
             
     else:
@@ -162,14 +176,14 @@ def payment_list(request):
 @login_required(login_url='/user-login/')
 def update_claim(request, id):
     # claim_update = get_object_or_404(ClaimsApproval, id=id)
-    update = get_object_or_404(ClaimsApproval, id=id)
+    # update = ClaimsApproval.objects.filter(id=claim_id)
     claims = get_object_or_404(Claims, id=id)
     status = 'approved'
     user = request.user
     user_role = request.user.role
 
     if user_role == 'student_rep':
-        # update = get_object_or_404(ClaimsApproval, id=id)
+        update = ClaimsApproval.objects.get(claim_id=id)
         if update.rep_approval == 'pending':
             update.rep_approval = status
             update.save()
@@ -178,18 +192,8 @@ def update_claim(request, id):
             messages.warning(request, "Claim Is already Approved")
         return redirect('claims_list')
     
-    elif user_role == 'accountant':
-        # update = get_object_or_404(ClaimsApproval, id=id)
-        if update.acc_approval == 'pending':
-            update.acc_approval = status
-            update.save()
-            messages.success(request, "Claim Successfully Approved")
-        else:
-            messages.warning(request, "Claim Is already Approved")
-        return redirect('claims_list')
-    
     elif user_role == 'faculty_dean':
-        # update = get_object_or_404(ClaimsApproval, id=id)
+        update = ClaimsApproval.objects.get(claim_id=id)
         if update.dean_approval == 'pending':
             update.dean_approval = status
             update.save()
@@ -197,6 +201,22 @@ def update_claim(request, id):
         else:
             messages.warning(request, "Claim Is already Approved")
         return redirect('claims_list')
+    
+    elif user_role == 'accountant':
+        update = ClaimsApproval.objects.get(claim_id=id)
+        if update.acc_approval == 'pending':
+            update.acc_approval = status
+            update.save()
+            messages.success(request, "Claim Successfully Approved")
+        else:
+            messages.warning(request, "Claim Is already Approved")
+
+        if update.acc_approval == status and update.dean_approval == status and update.rep_approval == status:
+            claims.status = status
+            claims.save()
+            messages.success(request, "Claim Fully approved. \n You can now pay the claim")
+        return redirect('claims_list')
+    
     else:
         messages.error(request, f"User not allowed. { user_role }")
         return redirect('claims_list')
