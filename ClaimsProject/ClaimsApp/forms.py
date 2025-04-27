@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustUser, Claims, ClaimsPayment, ClaimsApproval
+from .models import Appointment, ClaimsCancel, ClaimsDispute, CustUser, Claims, ClaimsPayment, ClaimsApproval, ExamInvigilation, SetExam
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
@@ -41,25 +41,42 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
 
-class ClaimsApprovalForm(forms.Form):
-    class StatusChoices:
-        PENDING = 'pending'
-        APPROVED = 'approved'
-        DISPUTE = 'dispute'
-        CANCELLED = 'cancelled'
-        PAID = 'paid'
 
-        CHOICES = [
-            (PENDING, 'pending'),
-            (APPROVED, 'approved'),
-            (DISPUTE, 'dispute'),
-            (CANCELLED, 'cancelled'),
-            (PAID, 'paid')
-        ]
+class ClaimsDisputeForm(forms.ModelForm):
+    class Meta:
+        model = ClaimsDispute
+        fields = (
+            'dispute_reason',
+        )
 
-    claim_status = forms.ChoiceField(choices=StatusChoices.CHOICES)
-    # class Meta:
-    #     model = ClaimsApproval
-    #     fields = (
-    #         'status',
-    #     )
+class ClaimsCancelForm(forms.ModelForm):
+    class Meta:
+        model = ClaimsCancel
+        fields = (
+            'cancel_reason',
+        )
+
+class ExamInvigilationForm(forms.ModelForm):
+    class Meta:
+        model = ExamInvigilation
+        fields = (
+            'course',
+            'no_students',
+            'exam_venue'
+        )
+
+class SetExamForm(forms.ModelForm):
+    class Meta:
+        model = SetExam
+        fields = (
+            'course',
+            'exam_paper'
+        )
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = (
+            'lecturer',
+            'appointment_letter',
+        )

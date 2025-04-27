@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block main_block %}
+{% if messages %}
+    {% for messages in messages %}
+    <h3>{{ messages }}</h3>
+    {% endfor %}
+{% endif %}
+<div>
+    <form method='POST' enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ appointment_form|crispy }}
+        <input type='submit' name='SUBMIT'/>
+    </form>
+</div>
+{% endblock main_block %}

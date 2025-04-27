@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block main_block %}
+{% if messages %}
+    {% for message in messages %}
+        <h3>{{ message }}</h3>
+    {% endfor %}
+{% endif %}
+<div>
+    {% if exams %}
+        <table>
+            <thead>
+                <tr>
+                    <th>EXAM ID</th>
+                    <th>EXAM COURSE</th>
+                    <th>LECTURER</th>
+                    <th>VIEW</th>
+                    <th>STATUS</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                    <tr>
+                        <td>{{exam.id}}</td>
+                        <td>{{exam.course}}</td>
+                        <td>{{exam.lecturer.first_name}} {{exam.lecturer.last_name}}</td>
+                        <td>
+                            <a href="{{exam.exam_paper.url}}" download>Download Exam</a>
+                        </td>
+                        <td>{{ exam.status}}</td>
+                        <td>
+                            {% if user.role == 'faculty_dean' %}
+                            <form method='POST' action='{% url "approve_exam" exam.id %}'>
+                                {% csrf_token %}
+                                <input type='submit' name='APPROVE EXAM'/>
+                            </form>
+                            {% endif %}
+                            {% if user.role == 'accountant' %}
+                            <form method='POST' action='{% url "pay_exam" exam.id %}'>
+                                {% csrf_token %}
+                                <input type='submit' name='PAY'/>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h3>No Exams Found</h3>
+    {% endif %}
+</div>
+{% endblock main_block %}

@@ -54,6 +54,15 @@
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
                 <a href="{% url "claims_list" %}">View Claims</a>
             </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "upload_exam" %}">Upload Exam</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "new_invigilation" %}">New Invigilations</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "invigilation" %}">Invigilations</a>
+            </button>
             {% endif %}
             {% if stats.user_role == 'accountant' %}
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
@@ -62,10 +71,39 @@
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
                 <a href="{% url "claims_list" %}">Approve Claims</a>
             </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "dispute_list" %}">DISPUTE CLAIM</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "exam_list" %}">PAY EXAM</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "invigilation" %}">PAY INVIGILATION</a>
+            </button>
             {% endif %}
-            {% if stats.user_role == 'faculty_dean' or stats.user_role == 'student_rep' %}
+            {% if stats.user_role == 'faculty_dean' %}
             <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
                 <a href="{% url "claims_list" %}">Approve Claims</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">DISPUTE CLAIM</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "upload_appointment" %}">Upload Appointment</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "exam_list" %}">Approve Exam</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "invigilation" %}">Approve Invigilation</a>
+            </button>
+            {% endif %}
+            {% if stats.user_role == 'student_rep' %}
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">Approve Claims</a>
+            </button>
+            <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
+                <a href="{% url "claims_list" %}">DISPUTE CLAIM</a>
             </button>
             {% endif %}
         {% endif %}

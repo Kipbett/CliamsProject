@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
 from Utils.utils import pending_claims
-from .forms import UserForm, ClaimsForm, ClaimsPaymentForm, UserLoginForm, ClaimsApprovalForm
-from .models import Claims, ClaimsApproval, ClaimsPayment
+from .forms import AppointmentForm, ClaimsDisputeForm, ExamInvigilationForm, SetExamForm, UserForm, ClaimsForm, ClaimsPaymentForm, UserLoginForm
+from .models import Claims, ClaimsApproval, ClaimsDispute, ClaimsPayment, ExamInvigilation, ExamPayment, SetExam
 from django.contrib.auth import login, get_user_model, authenticate, logout as auth_logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -35,7 +35,7 @@ def add_claim(request):
     if request.method == 'POST':
         claims_form = ClaimsForm(request.POST)
         if claims_form.is_valid():
-            claims_form.save(commit=fasle)
+            claims_form.save(commit=False)
             # return redirect('claims_list')
         claims = Claims.objects.last()
         claims_id = claims.id
@@ -70,39 +70,39 @@ def list_claim(request):
     for role in roles:
         roles.append(user_role)
 
-    claim_approve = ClaimsApprovalForm(request.POST)
+    # claim_approve = ClaimsApprovalForm(request.POST)
     if request.method == 'POST':
-        
-        if claim_approve.is_valid():
-            status = claim_approve.cleaned_data['claim_status']
-            claim_id = request.POST.get('claim_id')
+        status = 'approved'
+        # if claim_approve.is_valid():
+        #     status = claim_approve.cleaned_data['claim_status']
+        claim_id = request.POST.get('claim_id')
 
-            update = get_object_or_404(ClaimsApproval, claim_id=claim_id)
+        update = get_object_or_404(ClaimsApproval, claim_id=claim_id)
 
-            if user_role == 'student_rep':
-                if update.rep_approval == 'pending':
+        if user_role == 'student_rep':
+            if update.rep_approval == 'pending':
                     update.rep_approval = status
-                else:
-                    messages.error(request, "You have already approved this claim")
-                    return redirect('claims_list')
-            elif user_role == 'faculty_dean':
-                if update.dean_approval == 'pending':
-                    update.dean_approval = status
-                else:
-                    messages.error(request, "You have already approved this claim")
-                    # return redirect('claims_list')
-            elif user_role == 'accountant':
-                if update.acc_approval == 'pending':
-                    update.acc_approval = status
-                else:
-                    messages.error(request, "You have already approved this claim")
-                    return redirect('claims_list')
             else:
-                messages.error(request, "You are not authorized to update this claim.")
+                messages.error(request, "You have already approved this claim")
                 return redirect('claims_list')
-            
-            update.save()
+        elif user_role == 'faculty_dean':
+            if update.dean_approval == 'pending':
+                update.dean_approval = status
+            else:
+                messages.error(request, "You have already approved this claim")
+                    # return redirect('claims_list')
+        elif user_role == 'accountant':
+            if update.acc_approval == 'pending':
+                update.acc_approval = status
+            else:
+                messages.error(request, "You have already approved this claim")
+                return redirect('claims_list')
+        else:
+            messages.error(request, "You are not authorized to update this claim.")
             return redirect('claims_list')
+            
+        update.save()
+        return redirect('claims_list')
     pending_claims_data = zip(pending_claims, pending_duration)
     approved_claims_data = zip(approved_claims, approved_duration)
     context = {
@@ -160,18 +160,18 @@ def claims_payment(request, id):
         messages.warning(request, "Claim Already Approved")
         return redirect('approved_claims')
     
-@login_required(login_url='/user-login/')
-def approve_claim(request):
-    title = "Approve Claim"
-    if request.method == 'POST':
-        approval_form = ClaimsApprovalForm(request.POST)
-        if approval_form.is_valid():
-            approval_form.save()
-            return redirect('claims_list')
-    else:
-        approval_form = ClaimsApprovalForm()
+# @login_required(login_url='/user-login/')
+# def approve_claim(request):
+#     title = "Approve Claim"
+#     if request.method == 'POST':
+#         approval_form = ClaimsApprovalForm(request.POST)
+#         if approval_form.is_valid():
+#             approval_form.save()
+#             return redirect('claims_list')
+#     else:
+#         approval_form = ClaimsApprovalForm()
 
-    return render(request, 'claim-approval.html', {'approval_form': approval_form, 'title': title})
+#     return render(request, 'claim-approval.html', {'approval_form': approval_form, 'title': title})
 
 @login_required(login_url='/user-login/')
 def payment_list(request):
@@ -181,8 +181,6 @@ def payment_list(request):
 
 @login_required(login_url='/user-login/')
 def update_claim(request, id):
-    # claim_update = get_object_or_404(ClaimsApproval, id=id)
-    # update = ClaimsApproval.objects.filter(id=claim_id)
     claims = get_object_or_404(Claims, id=id)
     status = 'approved'
     user = request.user
@@ -227,6 +225,7 @@ def update_claim(request, id):
         messages.error(request, f"User not allowed. { user_role }")
         return redirect('claims_list')
 
+@login_required(login_url='/user-login/')
 def approive_claim(request, id):
     update = ClaimsApproval.objects.get(id=id)
     claims = Claims.objects.get(id=id)
@@ -234,8 +233,6 @@ def approive_claim(request, id):
         claims.status = 'approved'
         claims.save()
         return redirect('claims_list')
-
-    
 
 @login_required(login_url='/user-login/')   
 def dashboard(request):
@@ -256,6 +253,7 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', {'stats': stats})
 
+@login_required(login_url='/user-login/')
 def end_claim(request, id):
     end_time = datetime.now().time()
     claims = Claims.objects.filter(id=id, end_time=None)
@@ -269,6 +267,7 @@ def end_claim(request, id):
         messages.error(request, "Could not end claim")
         return redirect('dashboard')
 
+@login_required(login_url='/user-login/')
 def approved_claims(request):
     approved = Claims.objects.filter(status='approved')
     duration = []
@@ -278,14 +277,196 @@ def approved_claims(request):
 
     for cliam in approved:
         sum_amount.append(claim.claim_sub_total)
-    
-    # claims_data = zip(duration, approved, sum_amount)
     content = {
         'title': 'Approved Claims',
         'approved': approved
     }
 
     return render(request, 'approved-claims.html', content)
+
+@login_required(login_url='/user-login/')
+def claim_dispute(request, id):
+    claim = Claims.objects.get(id=id)
+    claim_approval = ClaimsApproval.objects.get(claim_id=id)
+    user = request.user
+
+    if claim.status == 'paid':
+        messages.error(request, "Claim is already paid")
+        return redirect('dispute_list')
+    elif claim.status == 'dispute':
+        messages.error(request, "Claim is already in dispute")
+        return redirect('dispute_list')
+    else:
+        if request.method == 'POST':
+            dispute_form = ClaimsDisputeForm(request.POST)
+            if dispute_form.is_valid():
+                reason = dispute_form.cleaned_data['dispute_reason']
+                claim_dispute = ClaimsDispute(
+                    claim=claim,
+                    dispute_reason=reason,
+                    dispute_by=user,
+                )
+                claim_dispute.save()
+                if user.role == 'accountant':
+                    claim_approval.acc_approval = 'dipsute'
+                elif user.role == 'student_rep':
+                    claim_approval.rep_approval = 'dispute'
+                elif user.role == 'faculty_dean':
+                    claim_approval.dean_approval = 'dispute'
+                claim_approval.save()
+                claim.status = 'dispute'
+                claim.save()
+                messages.success(request, "Claim Disputed")
+                return redirect('dispute_list')
+            else:
+                messages.error(request, "Invalid Form Submission")
+                return redirect('dispute_list')
+        else:
+            dispute_form = ClaimsDisputeForm()
+    # return redirect('dispute_list')
+
+@login_required(login_url='/user-login/')
+def dispute_list(request):
+    title = "Dispute List"
+    disputes = Claims.objects.all()
+    return render(request, 'claim-dispute.html', {'disputes': disputes, 'title': title})
+
+@login_required(login_url='/user-login/')
+def add_invigilation(request):
+    user = request.user
+    invigilation_form = ExamInvigilationForm(request.POST)
+    if request.method == 'POST':
+        if invigilation_form.is_valid():
+            invigilate = invigilation_form.save(commit=False)
+            invigilate.lecturer = user
+            invigilate.save()
+            messages.success(request, "Invigilation Added Successfully")
+        return redirect('dashboard')
+        
+    else:
+        invigilation_form = ExamInvigilationForm()
+
+    return render(request, 'new-invigilation.html', {'invigilation_form': invigilation_form, 'user': user})
+
+@login_required(login_url='/user-login/')
+def invigilations(request):
+    user = request.user
+    invigilations = ExamInvigilation.objects.all()
+    duration = []
+    amount_to_pay = []
+    for invigilation in invigilations:
+        duration.append(invigilation.time_invigilated)
+        amount_to_pay.append(invigilation.invigilate_sub_total)
+    invigilation_details = zip(invigilations, duration, amount_to_pay)
+    return render(request, 'invigilation.html', {'invigilations': invigilation_details, 'user': user})
+    
+
+@login_required(login_url='/user-login/')
+def end_invigilation(request, id):
+    invigilation = ExamInvigilation.objects.get(id=id)
+    if invigilation and invigilation.end_time == None:
+        invigilation.end_time = datetime.now().time()
+        invigilation.save()
+        messages.success(request, 'Invigilation Successfully Ended')
+        return redirect('invigilation')
+    else:
+        messages.warning(request, 'Invigilation Already Ended')
+        return redirect('invigilation')
+    
+@login_required(login_url='/user-login/')
+def upload_exam(request):
+    user = request.user
+    upload_form = SetExamForm(request.POST, request.FILES)
+    if request.method =='POST':
+        if upload_form.is_valid():
+            upload = upload_form.save(commit=False)
+            upload.lecturer = user 
+            upload.save()
+            messages.success(request, 'Exam Successfully Uploaded')
+        return redirect('dashboard')
+    else:
+        upload_form = SetExamForm()
+    return render(request, 'upload-exam.html', {'upload_form': upload_form})
+
+@login_required(login_url='/user-login/')
+def upload_appointment(request):
+    user = request.user
+    appointment_form = AppointmentForm(request.POST, request.FILES)
+    if request.method == 'POST':
+        if appointment_form.is_valid():
+            appointment = appointment_form.save(commit=False)
+            appointment.uploaded_by = user
+            appointment.save()
+            messages.success(request, 'Appointment Letter Successfully Uploaded')
+        return redirect('dashboard')
+    else:
+        appointment_form = AppointmentForm()
+    return render(request, 'upload-appointment.html', {'appointment_form': appointment_form})
+
+@login_required(login_url='/user-login/')
+def exam_list(request):
+    user = request.user
+    exams = SetExam.objects.all()
+    return render(request, 'exam-list.html', {'exams': exams, 'user': user})
+
+@login_required(login_url='/user-login/')
+def approve_exam(request, id):
+    exams = SetExam.objects.filter(id=id, status='pending')
+    if exams:
+        for exam in exams:
+            exam.status = 'approved'
+            exam.save()
+            messages.success(request, 'Exam Successfully Approved')
+        return redirect('exam_list')
+    else:
+        messages.warning(request, 'No Pending Exam')
+        return redirect('exam_list')
+
+@login_required(login_url='/user-login/')   
+def pay_exam(request, id):
+    user = request.user
+    exam = SetExam.objects.get(id=id)
+    if exam and exam.status == 'approved':
+        exam.status = 'paid'
+        exam.save()
+        payment = ExamPayment(
+            lecturer=exam.lecturer,
+            paid_by=user,
+            exam_paid=exam,
+            amount_paid=exam.set_exam_sub_total
+        )
+        payment.save()            
+        messages.success(request, 'Exam Successfully Updated and Paid')
+        return redirect('exam_list')
+    else:
+        messages.warning(request, 'Exam Already Paid For.')
+        return redirect('exam_list')
+
+@login_required(login_url='/user-login/')
+def approve_invigilation(request, id):
+    invigilation = ExamInvigilation.objects.get(id=id)
+    if invigilation and invigilation.status == 'pending':
+        invigilation.status = 'approved'
+        invigilation.save()
+        messages.success(request, 'Invigilation Successfully Approved')
+        return redirect('invigilation')
+    else:
+        messages.warning(request, 'Invigilation Already Approved.')
+        return redirect('invigilation')
+    
+@login_required(login_url='/user-login/')
+def pay_invigilation(request, id):
+    invigilation = ExamInvigilation.objects.get(id=id)
+    if invigilation and invigilation.status == 'approved':
+        invigilation.status = 'paid'
+        invigilation.date_paid = datetime.now().date()
+        invigilation.amount_paid = invigilation.invigilate_sub_total
+        invigilation.save()
+        messages.success(request, "Invigilation Successfully Paid")
+        return redirect('invigilation')
+    else:
+        messages.warning(request, 'Failed to pay invigilation')
+        return redirect('invigilation')
 
 def logout(request):
     auth_logout(request)

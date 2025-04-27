@@ -14,9 +14,11 @@
         </ul>
     {% endif %}
         <p class="text-2xl text-amber-400">Claims List</p>
-        {% if pending_claims %}
-        <h1 class="text-2xl text-amber-400">PENDING CLAIMES</h1>
-        <table class="p-3 m-4 table-auto">
+        
+        <div id="pending-claims" role="tab" aria-labelledby="pending-claims">
+            {% if pending_claims %}
+            <h1 class="text-2xl text-amber-400">PENDING CLAIMES</h1>
+            <table class="p-3 m-4 table-auto">
             <thead>
                 <tr class="mt-3 ml-3 border-2 border-amber-300 rounded-2xl bg-gray-400">
                     <td class="mt-5 ml-5 p-3 border-2 border-amber-300">Claims ID</td>
@@ -84,13 +86,14 @@
                 {% endfor %}
             </tbody>
         </table>
-
         {% else %}
         <p>Nod Pending Claims Found </p>
         {% endif %}
+        </div>
 
-        <h1 class="text-2xl text-amber-400">APPROVED CLAIMES</h1>
 
+        <div id="approved-claims" role="tablist" aria-labelledby="approved-claims">
+            <h1 class="text-2xl text-amber-400">APPROVED CLAIMES</h1>
         {% if approved_claims %}
         <table class="p-3 m-4 table-auto">
             <thead>
@@ -137,6 +140,8 @@
         {% else %}
         <h1>No Approved Claims Found</h1>
         {% endif %}
+        </div>
+        
         <button class="m-3 p-3 border-2 border-amber-400 hover:bg-amber-400 rounded-2xl">
             <a href="{% url "dashboard" %}">BACK</a>
         </button>
